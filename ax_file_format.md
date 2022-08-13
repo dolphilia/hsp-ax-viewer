@@ -217,7 +217,7 @@ hsp3中間コードは命令に続いてパラメーターの記述が行なわ�
 |  4  | CALCCODE_MOD  | 余剰(\\) |
 |  5  | CALCCODE_AND  | 論理積(&) |
 |  6  | CALCCODE_OR   | 論理和(|) |
-|  7  | CALCCODE_XOR  | 排他的論理和(^) |
+|  7  | CALCCODE_XOR  | 排他的論理和(\^) |
 |  8  | CALCCODE_EQ   | 同一比較(=) |
 |  9  | CALCCODE_NE   | 非同一比較(!) |
 | 10  | CALCCODE_GT   | より大きい(<) |
