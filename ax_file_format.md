@@ -27,46 +27,46 @@ hsp3struct.hから抜粋:
 ```c
 // HSP3.0 ヘッダー構造体
 typedef struct HSPHED {
-    char	h1;					// H
-    char	h2;					// S
-    char	h3;					// P
-    char	h4;					// 3
-    int		version;			// バージョン番号の情報
-    int		max_val;			// VALオブジェクトの最大数
-    int		allsize;			// 合計ファイルサイズ
+    char	h1;         // H
+    char	h2;         // S
+    char	h3;         // P
+    char	h4;         // 3
+    int		version;    // バージョン番号の情報
+    int		max_val;    // VALオブジェクトの最大数
+    int		allsize;    // 合計ファイルサイズ
     
-    int		pt_cs;				// コードセグメントへのポインタ
-    int		max_cs;				// コードセグメントのサイズ
-    int		pt_ds;				// データセグメントへのポインタ
-    int		max_ds;				// データセグメントのサイズ
+    int		pt_cs;      // コードセグメントへのポインタ
+    int		max_cs;     // コードセグメントのサイズ
+    int		pt_ds;      // データセグメントへのポインタ
+    int		max_ds;     // データセグメントのサイズ
     
-    int		pt_ot;				// 一時的なオブジェクトへのポインタ
-    int		max_ot;				// 一時的なオブジェクトのサイズ
-    int		pt_dinfo;			// デバッグ情報へのポインタ
-    int		max_dinfo;			// デバッグ情報のサイズ
+    int		pt_ot;      // 一時的なオブジェクトへのポインタ
+    int		max_ot;     // 一時的なオブジェクトのサイズ
+    int		pt_dinfo;   // デバッグ情報へのポインタ
+    int		max_dinfo;  // デバッグ情報のサイズ
     
-    int		pt_linfo;			// ライブラリ情報へのポインタ(2.3)
-    int		max_linfo;			// ライブラリ情報のサイズ(2.3)
-    int		pt_finfo;			// 関数情報へのポインタ(2.3)
-    int		max_finfo;			// 関数情報のサイズ(2.3)
+    int		pt_linfo;   // ライブラリ情報へのポインタ(2.3)
+    int		max_linfo;  // ライブラリ情報のサイズ(2.3)
+    int		pt_finfo;   // 関数情報へのポインタ(2.3)
+    int		max_finfo;  // 関数情報のサイズ(2.3)
     
-    int		pt_minfo;			// モジュール情報へのポインタ(2.5)
-    int		max_minfo;			// モジュール情報のサイズ(2.5)
-    int		pt_finfo2;			// 関数情報へのポインタ2(2.5)
-    int		max_finfo2;			// 関数情報のサイズ2(2.5)
+    int		pt_minfo;   // モジュール情報へのポインタ(2.5)
+    int		max_minfo;  // モジュール情報のサイズ(2.5)
+    int		pt_finfo2;  // 関数情報へのポインタ2(2.5)
+    int		max_finfo2; // 関数情報のサイズ2(2.5)
     
-    int		pt_hpidat;			// HPIデータへのポインタ(3.0)
-    short	max_hpi;			// HPIデータのサイズ(3.0)
-    short	max_varhpi;			// 変数型プラグインの数(3.0)
-    int		bootoption;			// 起動オプション
-    int		runtime;			// ランタイム名へのポインタ
+    int		pt_hpidat;  // HPIデータへのポインタ(3.0)
+    short	max_hpi;    // HPIデータのサイズ(3.0)
+    short	max_varhpi; // 変数型プラグインの数(3.0)
+    int		bootoption; // 起動オプション
+    int		runtime;    // ランタイム名へのポインタ
     
     //		HSP3.5 エクストラヘッダー構造体
     //
-    int		pt_sr;				// オプションセグメントへのポインタ
-    int		max_sr;				// オプションセグメントのサイズ
-    int		pt_exopt;			// エクストラオプションセグメント (3.6)
-    int		max_exopt;			// エクストラオプションセグメントの大きさ (3.6)
+    int		pt_sr;      // オプションセグメントへのポインタ
+    int		max_sr;     // オプションセグメントのサイズ
+    int		pt_exopt;   // エクストラオプションセグメント (3.6)
+    int		max_exopt;  // エクストラオプションセグメントの大きさ (3.6)
 } HSPHED;
 ```
 
