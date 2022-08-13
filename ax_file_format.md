@@ -6,12 +6,12 @@ HSPオブジェクトファイルであるax形式ファイルには次のデー
 2. オプション領域: Option Info(OPTBUF)
 3. コード領域: Code Segment(CS)
 4. データ領域: Data Segment(DS)
-5. ラベル情報: Object Temp(OT):
+5. ラベル情報: Object Temp(OT)
 6. 行番号情報: Debug Info(DINFO)
 7. ライブラリ情報: Lib Info(LINFO)
 8. 関数情報: Func Info(FINFO)
 9. モジュール情報: Module Info(MINFO)
-10. 関数情報2: Func Info2(FINFO2): 
+10. 関数情報2: Func Info2(FINFO2)
 11. HSP3プラグイン情報: HPI Info(HPIBUF)
 
 ## データへのアクセス
