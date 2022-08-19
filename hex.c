@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "IEEE754_binary_encoder/float.h"
-#include "sjis_to_utf8/table_sjis90.h"
+#include "sjis_to_utf8/table_sjis.h"
 #include "sjis_to_utf8/table_utf8.h"
 
 #define HSPHED_BOOTOPT_DEBUGWIN  1        // 起動時にデバッグウインドウを表示する
@@ -883,9 +883,9 @@ void utf8_to_char(char* str, uint32_t utf8_code) {
 }
 
 int search_sjis_index(uint32_t* table, uint32_t sjis_code) { //指定したSJISコードにマッチする位置を返す
-    int table_len = sizeof(table_sjis90) / sizeof(uint32_t);
+    int table_len = sizeof(table_sjis) / sizeof(uint32_t);
     for (int i = 0; i < table_len; i++) {
-        if (sjis_code == table_sjis90[i]) {
+        if (sjis_code == table_sjis[i]) {
             return i;
         }
     }
@@ -895,9 +895,15 @@ int search_sjis_index(uint32_t* table, uint32_t sjis_code) { //指定したSJIS�
 
 void print_utf8_from_sjis(uint32_t* table, uint32_t sjis_code) {
     int index = search_sjis_index(table, sjis_code);
-    char str[4] = "";
-    utf8_to_char(str, table_utf8[index]);
-    printf("%s", str);
+    if (index) {
+        char str[4] = "";
+        utf8_to_char(str, table_utf8[index]);
+        printf("%s", str);
+    } else { // マッチしなかった場合は変換せずに格納する
+        char str[4] = "";
+        utf8_to_char(str, sjis_code);
+        printf("%s", str);
+    }
 }
 
 uint32_t get_2byte_from_raw_data(uint8_t* data, int offset) {
@@ -914,12 +920,12 @@ void print_sjis_data(uint8_t* data, int32_t size) {
             uint32_t sjis_code = 0;
             sjis_code = get_2byte_from_raw_data(data, offset);
             offset += 2;
-            print_utf8_from_sjis(table_sjis90, sjis_code);
+            print_utf8_from_sjis(table_sjis, sjis_code);
         } else { // 1バイト目が0x81未満なら１バイト文字
             uint32_t sjis_code = 0;
             sjis_code += data[offset]; // ２バイト分流し込む
             offset += 1;
-            print_utf8_from_sjis(table_sjis90, sjis_code);
+            print_utf8_from_sjis(table_sjis, sjis_code);
         }
     }
 }
