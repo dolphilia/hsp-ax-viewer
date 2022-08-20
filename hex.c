@@ -875,8 +875,16 @@ void utf8_3byte_to_char(char* str, uint32_t utf8_code) {
 void utf8_to_char(char* str, uint32_t utf8_code) {
     if (utf8_code < 0x80) {
         utf8_1byte_to_char(str, utf8_code);
-    } else if (utf8_code <= 0xF1A0) {
-        utf8_2byte_to_char(str, utf8_code);
+    } else if (utf8_code >= 0xc0 && utf8_code <= 0xe0) {
+        utf8_1byte_to_char(str, utf8_code);
+    } else if (utf8_code >= 0xe0 && utf8_code <= 0xf0) {
+        utf8_1byte_to_char(str, utf8_code);
+    } else if (utf8_code >= 0xf0 && utf8_code <= 0xf8) {
+        utf8_1byte_to_char(str, utf8_code);
+    } else if (utf8_code >= 0xf8 && utf8_code <= 0xfc) {
+        utf8_1byte_to_char(str, utf8_code);
+    } else if (utf8_code >= 0xfc && utf8_code <= 0xfe) {
+        utf8_1byte_to_char(str, utf8_code);
     } else {
         utf8_3byte_to_char(str, utf8_code);
     }
@@ -889,7 +897,7 @@ int search_sjis_index(uint32_t* table, uint32_t sjis_code) { //指定したSJIS�
             return i;
         }
     }
-    printf("\n%d\n",sjis_code);
+    printf("\n%x\n",sjis_code);
     return 0;
 }
 
@@ -916,15 +924,16 @@ uint32_t get_2byte_from_raw_data(uint8_t* data, int offset) {
 
 void print_sjis_data(uint8_t* data, int32_t size) {
     for(int offset = 0; offset < size; ) {
-        if (data[offset] >= 0x81) { // 1バイト目が0x81以上なら２バイト文字
-            uint32_t sjis_code = 0;
-            sjis_code = get_2byte_from_raw_data(data, offset);
-            offset += 2;
-            print_utf8_from_sjis(table_sjis, sjis_code);
-        } else { // 1バイト目が0x81未満なら１バイト文字
+        if ((data[offset] < 0x80) ||
+            (data[offset] >= 0xA1 && data[offset] <= 0xDF)) { // 1バイト目が0x81未満なら１バイト文字
             uint32_t sjis_code = 0;
             sjis_code += data[offset]; // ２バイト分流し込む
             offset += 1;
+            print_utf8_from_sjis(table_sjis, sjis_code);
+        } else { // 1バイト目が0x81以上なら２バイト文字
+            uint32_t sjis_code = 0;
+            sjis_code = get_2byte_from_raw_data(data, offset);
+            offset += 2;
             print_utf8_from_sjis(table_sjis, sjis_code);
         }
     }
@@ -1108,12 +1117,70 @@ void print_code_segment(uint8_t* data, HSPHED* hsp_header) {
     print_code_segment_second(code_segment_first, data, &index, hsp_header);
  }
 
+char* sample_basic[] = {
+    "hsp_ax_sample/basic/arraynote.ax",
+    "hsp_ax_sample/basic/atan_grect.ax",
+    "hsp_ax_sample/basic/aviplay.ax",
+    "hsp_ax_sample/basic/bmpsave.ax",
+    "hsp_ax_sample/basic/calcsheet.ax",
+    "hsp_ax_sample/basic/cdplay.ax",
+    "hsp_ax_sample/basic/chkbox.ax",
+    "hsp_ax_sample/basic/clock.ax",
+    "hsp_ax_sample/basic/clock2.ax",
+    "hsp_ax_sample/basic/dirinfo.ax",
+    "hsp_ax_sample/basic/dirlist.ax",
+    "hsp_ax_sample/basic/editor.ax",
+    "hsp_ax_sample/basic/emes.ax",
+    "hsp_ax_sample/basic/filedialog.ax",
+    "hsp_ax_sample/basic/fonts.ax",
+    "hsp_ax_sample/basic/getpath.ax",
+    "hsp_ax_sample/basic/gradf.ax",
+    "hsp_ax_sample/basic/grect.ax",
+    "hsp_ax_sample/basic/groll.ax",
+    "hsp_ax_sample/basic/grotate.ax",
+    "hsp_ax_sample/basic/groupbox.ax",
+    "hsp_ax_sample/basic/gsel.ax",
+    "hsp_ax_sample/basic/gsquare.ax",
+    "hsp_ax_sample/basic/gstyle.ax",
+    "hsp_ax_sample/basic/hsv.ax",
+    "hsp_ax_sample/basic/htcopy1.ax",
+    "hsp_ax_sample/basic/htcopy2.ax",
+    "hsp_ax_sample/basic/line.ax",
+    "hsp_ax_sample/basic/memcpy.ax",
+    "hsp_ax_sample/basic/memfile.ax",
+    "hsp_ax_sample/basic/memnote.ax",
+    "hsp_ax_sample/basic/menusample.ax",
+    "hsp_ax_sample/basic/mesinfo.ax",
+    "hsp_ax_sample/basic/mouse.ax",
+    "hsp_ax_sample/basic/mouse2.ax",
+    "hsp_ax_sample/basic/note1.ax",
+    "hsp_ax_sample/basic/note2.ax",
+    "hsp_ax_sample/basic/noteadd.ax",
+    "hsp_ax_sample/basic/objimage.ax",
+    "hsp_ax_sample/basic/objmode.ax",
+    "hsp_ax_sample/basic/omedetai.ax",
+    "hsp_ax_sample/basic/onerror.ax",
+    "hsp_ax_sample/basic/onexit.ax",
+    "hsp_ax_sample/basic/onkey.ax",
+    "hsp_ax_sample/basic/picfont.ax",
+    "hsp_ax_sample/basic/picload.ax",
+    "hsp_ax_sample/basic/star.ax",
+    "hsp_ax_sample/basic/starmove.ax",
+    "hsp_ax_sample/basic/stars.ax",
+    "hsp_ax_sample/basic/stick.ax",
+    "hsp_ax_sample/basic/str.ax",
+    "hsp_ax_sample/basic/strf.ax",
+    "hsp_ax_sample/basic/strmid.ax",
+    "hsp_ax_sample/basic/switch.ax",
+    "hsp_ax_sample/basic/sysinfo.ax",
+};
+
 int main (void) {
     uint8_t* ax_raw_data;
     int32_t ax_size;
     HSPHED hsp_header;
 
-    ax_raw_data = get_file_raw_data("hsp_ax_sample/basic/groll.ax", &ax_size);
+    ax_raw_data = get_file_raw_data(sample_basic[2], &ax_size);
 
     puts("");
     print_hex_raw_data(ax_raw_data, ax_size);
