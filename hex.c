@@ -945,8 +945,7 @@ int search_sjis_index(uint32_t* table, uint32_t sjis_code) { //指定したSJIS�
             return i;
         }
     }
-    printf("\n%x\n",sjis_code);
-    return 0;
+    return '?';
 }
 
 void print_utf8_from_sjis(print_data_t* print_data, uint32_t* table, uint32_t sjis_code, int* index) {
@@ -1040,7 +1039,6 @@ void if_type_dnum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, i
         code += data[i + 1];
         code = code << 8;
         code += data[i + 0];
-        //printf("値 = %d", code);
     } else {
         uint16_t code = 0;
         int32_t i = *index - 2;
@@ -1057,8 +1055,6 @@ void if_type_dnum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, i
             binary[p] = data[offset + (7 - p)];
         }
         double decode = IEE754_binary64_decode( binary );
-        //printf("%lf | ", decode);
-        //printf("オフセット = %d", code);
         print_data->is_result_double = true;
         print_data->result_double = decode;
     } 
@@ -1158,6 +1154,7 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
         case TYPE_CMPCMD: // 比較命令
             print_data->is_result_str = true;
             set_array_from_str(print_data->result_str, type_compare_command[code_segment_second16]);
+            hsp_header->pt_cs+=2;
             break;
         case TYPE_MODCMD: // ユーザー命令関数
             print_data->is_result_int = true;
@@ -1261,7 +1258,7 @@ int main (void) {
     HSPHED hsp_header;
     print_data_t print_data;
 
-    ax_raw_data = get_file_raw_data(sample_basic[4], &ax_size);
+    ax_raw_data = get_file_raw_data(sample_basic[5], &ax_size);
 
     puts("");
     print_hex_raw_data(ax_raw_data, ax_size);
