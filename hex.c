@@ -1092,7 +1092,7 @@ void if_type_default(print_data_t* print_data, bool is_code_48bit, int16_t secon
     print_data->is_result_int = true;
 }
 
-void print_code_segment_second(print_data_t* print_data, int16_t code_segment_first, uint8_t* data, int32_t* index, HSPHED* hsp_header) {
+void print_code_segment_second(print_data_t* print_data, int16_t code_segment_first, uint8_t* data, int32_t* index, HSPHED* hsp_header, int* count) {
     int16_t code_segment_second16 = 0;
     int32_t code_segment_second32 = 0;
     bool is_code_48bit = code_segment_first & EXFLG_3;
@@ -1128,6 +1128,7 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
             if_type_inum(print_data, is_code_48bit, data, index);
             if (is_code_48bit) {
                 hsp_header->pt_cs+=2;
+                *count += 2;
             }
             break;
         case TYPE_STRUCT: // モジュール変数等
@@ -1150,15 +1151,19 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
             print_data->is_result_str = true;
             set_array_from_str(print_data->result_str, type_extra_system_var[code_segment_second32]);
             hsp_header->pt_cs+=2;
+            *count += 2;
+            //*index+=4;
             break;
         case TYPE_CMPCMD: // 比較命令
             print_data->is_result_str = true;
             set_array_from_str(print_data->result_str, type_compare_command[code_segment_second16]);
             hsp_header->pt_cs+=2;
+            *count += 2;
             break;
         case TYPE_MODCMD: // ユーザー命令関数
             print_data->is_result_int = true;
             print_data->result_int = code_segment_second16;
+            //hsp_header->pt_cs+=2;
             break;
         case TYPE_INTFUNC: // 内蔵関数
             print_data->is_result_str = true;
@@ -1184,14 +1189,17 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
             break;
         default:
             if_type_default(print_data, is_code_48bit, code_segment_second16, code_segment_second32);
+            hsp_header->pt_cs+=2;
+            *count += 2;
+            //*index+=4;
     }
 }
 
-void print_code_segment(print_data_t* print_data, uint8_t* data, HSPHED* hsp_header) {
+void print_code_segment(print_data_t* print_data, uint8_t* data, HSPHED* hsp_header, int* count) {
     int index = hsp_header->pt_cs; // コード領域のオフセット
     int16_t code_segment_first = hex_to_int16_index(data, &index);
     print_code_segment_first(print_data, code_segment_first);
-    print_code_segment_second(print_data, code_segment_first, data, &index, hsp_header);
+    print_code_segment_second(print_data, code_segment_first, data, &index, hsp_header, count);
  }
 
 char* sample_basic[] = {
@@ -1258,7 +1266,7 @@ int main (void) {
     HSPHED hsp_header;
     print_data_t print_data;
 
-    ax_raw_data = get_file_raw_data(sample_basic[5], &ax_size);
+    ax_raw_data = get_file_raw_data(sample_basic[0], &ax_size);
 
     puts("");
     print_hex_raw_data(ax_raw_data, ax_size);
@@ -1272,10 +1280,12 @@ int main (void) {
     print_bootoption(&hsp_header);
 
     puts("");
-    for (int index = 0; index < hsp_header.max_cs; index += 4) {
+    //int pt_cs = hsp_header.pt_cs;
+    int count;
+    for (count = 0; count < hsp_header.max_cs; count += 4) {
         printf("%04X",hsp_header.pt_cs);
         printf(" | ");
-        print_code_segment(&print_data, ax_raw_data, &hsp_header);
+        print_code_segment(&print_data, ax_raw_data, &hsp_header, &count);
         printf("%d ", print_data.extra_flag_0);
         printf("%d ", print_data.extra_flag_1);
         printf("%d ", print_data.extra_flag_2);
