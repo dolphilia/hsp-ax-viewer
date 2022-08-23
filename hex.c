@@ -71,6 +71,59 @@ enum {
     CALCCODE_MAX
 };
 
+// HSP3.0 ヘッダー構造体
+typedef struct HSPHED {
+    char    h1;         // H
+    char    h2;         // S
+    char    h3;         // P
+    char    h4;         // 3
+    int32_t version;    // バージョン番号の情報
+    int32_t max_val;    // VALオブジェクトの最大数
+    int32_t allsize;    // 合計ファイルサイズ
+    int32_t pt_cs;      // コード領域のオフセット
+    int32_t max_cs;     // コード領域のサイズ
+    int32_t pt_ds;      // データ領域のオフセット
+    int32_t max_ds;     // データ領域のサイズ
+    int32_t pt_ot;      // ラベル情報のオフセット
+    int32_t max_ot;     // ラベル情報のサイズ
+    int32_t pt_dinfo;   // 行番号情報のオフセット
+    int32_t max_dinfo;  // 行番号情報のサイズ
+    int32_t pt_linfo;   // ライブラリ情報のオフセット(2.3)
+    int32_t max_linfo;  // ライブラリ情報のサイズ(2.3)
+    int32_t pt_finfo;   // 関数情報のオフセット(2.3)
+    int32_t max_finfo;  // 関数情報のサイズ(2.3)
+    int32_t pt_minfo;   // モジュール情報のオフセット(2.5)
+    int32_t max_minfo;  // モジュール情報のサイズ(2.5)
+    int32_t pt_finfo2;  // 関数情報のオフセット2(2.5)
+    int32_t max_finfo2; // 関数情報のサイズ2(2.5)
+    int32_t pt_hpidat;  // HPIデータのオフセット(3.0)
+    short   max_hpi;    // HPIデータのサイズ(3.0)
+    short   max_varhpi; // 変数型プラグインの数(3.0)
+    int32_t bootoption; // 起動オプション
+    int32_t runtime;    // ランタイム名のオフセット
+    int32_t pt_sr;      // オプション領域のオフセット
+    int32_t max_sr;     // オプション領域のサイズ
+    int32_t pt_exopt;   // 追加オプション領域のオフセット (3.6)
+    int32_t max_exopt;  // 追加オプション領域のサイズ (3.6)
+} HSPHED;
+
+typedef struct print_data_t {
+    bool extra_flag_0;
+    bool extra_flag_1;
+    bool extra_flag_2;
+    bool extra_flag_3;
+    int  code_type;
+    char code_name[1024];
+    bool is_result_str;
+    bool is_result_int;
+    bool is_result_int2;
+    bool is_result_double;
+    char result_str[1024];
+    int  result_int;
+    int  result_int2;
+    double result_double;
+} print_data_t;
+
 char* type_name_str[] = {
     "記号",
     "ユーザー変数",
@@ -445,59 +498,63 @@ char* type_library_control[] = {
     "cnvatos",    // 260 | 0x0104
 };
 
-
-// HSP3.0 ヘッダー構造体
-typedef struct HSPHED {
-    char    h1;         // H
-    char    h2;         // S
-    char    h3;         // P
-    char    h4;         // 3
-    int32_t version;    // バージョン番号の情報
-    int32_t max_val;    // VALオブジェクトの最大数
-    int32_t allsize;    // 合計ファイルサイズ
-    int32_t pt_cs;      // コード領域のオフセット
-    int32_t max_cs;     // コード領域のサイズ
-    int32_t pt_ds;      // データ領域のオフセット
-    int32_t max_ds;     // データ領域のサイズ
-    int32_t pt_ot;      // ラベル情報のオフセット
-    int32_t max_ot;     // ラベル情報のサイズ
-    int32_t pt_dinfo;   // 行番号情報のオフセット
-    int32_t max_dinfo;  // 行番号情報のサイズ
-    int32_t pt_linfo;   // ライブラリ情報のオフセット(2.3)
-    int32_t max_linfo;  // ライブラリ情報のサイズ(2.3)
-    int32_t pt_finfo;   // 関数情報のオフセット(2.3)
-    int32_t max_finfo;  // 関数情報のサイズ(2.3)
-    int32_t pt_minfo;   // モジュール情報のオフセット(2.5)
-    int32_t max_minfo;  // モジュール情報のサイズ(2.5)
-    int32_t pt_finfo2;  // 関数情報のオフセット2(2.5)
-    int32_t max_finfo2; // 関数情報のサイズ2(2.5)
-    int32_t pt_hpidat;  // HPIデータのオフセット(3.0)
-    short   max_hpi;    // HPIデータのサイズ(3.0)
-    short   max_varhpi; // 変数型プラグインの数(3.0)
-    int32_t bootoption; // 起動オプション
-    int32_t runtime;    // ランタイム名のオフセット
-    int32_t pt_sr;      // オプション領域のオフセット
-    int32_t max_sr;     // オプション領域のサイズ
-    int32_t pt_exopt;   // 追加オプション領域のオフセット (3.6)
-    int32_t max_exopt;  // 追加オプション領域のサイズ (3.6)
-} HSPHED;
-
-typedef struct print_data_t {
-    bool extra_flag_0;
-    bool extra_flag_1;
-    bool extra_flag_2;
-    bool extra_flag_3;
-    int  code_type;
-    char code_name[1024];
-    bool is_result_str;
-    bool is_result_int;
-    bool is_result_int2;
-    bool is_result_double;
-    char result_str[1024];
-    int  result_int;
-    int  result_int2;
-    double result_double;
-} print_data_t;
+char* sample_basic[] = {
+    "hsp_ax_sample/basic/arraynote.ax",
+    "hsp_ax_sample/basic/atan_grect.ax",
+    "hsp_ax_sample/basic/aviplay.ax",
+    "hsp_ax_sample/basic/bmpsave.ax",
+    "hsp_ax_sample/basic/calcsheet.ax",
+    "hsp_ax_sample/basic/cdplay.ax",
+    "hsp_ax_sample/basic/chkbox.ax",
+    "hsp_ax_sample/basic/clock.ax",
+    "hsp_ax_sample/basic/clock2.ax",
+    "hsp_ax_sample/basic/dirinfo.ax",
+    "hsp_ax_sample/basic/dirlist.ax",
+    "hsp_ax_sample/basic/editor.ax",
+    "hsp_ax_sample/basic/emes.ax",
+    "hsp_ax_sample/basic/filedialog.ax",
+    "hsp_ax_sample/basic/fonts.ax",
+    "hsp_ax_sample/basic/getpath.ax",
+    "hsp_ax_sample/basic/gradf.ax",
+    "hsp_ax_sample/basic/grect.ax",
+    "hsp_ax_sample/basic/groll.ax",
+    "hsp_ax_sample/basic/grotate.ax",
+    "hsp_ax_sample/basic/groupbox.ax",
+    "hsp_ax_sample/basic/gsel.ax",
+    "hsp_ax_sample/basic/gsquare.ax",
+    "hsp_ax_sample/basic/gstyle.ax",
+    "hsp_ax_sample/basic/hsv.ax",
+    "hsp_ax_sample/basic/htcopy1.ax",
+    "hsp_ax_sample/basic/htcopy2.ax",
+    "hsp_ax_sample/basic/line.ax",
+    "hsp_ax_sample/basic/memcpy.ax",
+    "hsp_ax_sample/basic/memfile.ax",
+    "hsp_ax_sample/basic/memnote.ax",
+    "hsp_ax_sample/basic/menusample.ax",
+    "hsp_ax_sample/basic/mesinfo.ax",
+    "hsp_ax_sample/basic/mouse.ax",
+    "hsp_ax_sample/basic/mouse2.ax",
+    "hsp_ax_sample/basic/note1.ax",
+    "hsp_ax_sample/basic/note2.ax",
+    "hsp_ax_sample/basic/noteadd.ax",
+    "hsp_ax_sample/basic/objimage.ax",
+    "hsp_ax_sample/basic/objmode.ax",
+    "hsp_ax_sample/basic/omedetai.ax",
+    "hsp_ax_sample/basic/onerror.ax",
+    "hsp_ax_sample/basic/onexit.ax",
+    "hsp_ax_sample/basic/onkey.ax",
+    "hsp_ax_sample/basic/picfont.ax",
+    "hsp_ax_sample/basic/picload.ax",
+    "hsp_ax_sample/basic/star.ax",
+    "hsp_ax_sample/basic/starmove.ax",
+    "hsp_ax_sample/basic/stars.ax",
+    "hsp_ax_sample/basic/stick.ax",
+    "hsp_ax_sample/basic/str.ax",
+    "hsp_ax_sample/basic/strf.ax",
+    "hsp_ax_sample/basic/strmid.ax",
+    "hsp_ax_sample/basic/switch.ax",
+    "hsp_ax_sample/basic/sysinfo.ax",
+};
 
 void println(const char* str, ...) {
     va_list args;
@@ -1205,71 +1262,13 @@ void print_code_segment(print_data_t* print_data, uint8_t* data, HSPHED* hsp_hea
     print_code_segment_second(print_data, code_segment_first, data, code_index, hsp_header, loop_count);
  }
 
-char* sample_basic[] = {
-    "hsp_ax_sample/basic/arraynote.ax",
-    "hsp_ax_sample/basic/atan_grect.ax",
-    "hsp_ax_sample/basic/aviplay.ax",
-    "hsp_ax_sample/basic/bmpsave.ax",
-    "hsp_ax_sample/basic/calcsheet.ax",
-    "hsp_ax_sample/basic/cdplay.ax",
-    "hsp_ax_sample/basic/chkbox.ax",
-    "hsp_ax_sample/basic/clock.ax",
-    "hsp_ax_sample/basic/clock2.ax",
-    "hsp_ax_sample/basic/dirinfo.ax",
-    "hsp_ax_sample/basic/dirlist.ax",
-    "hsp_ax_sample/basic/editor.ax",
-    "hsp_ax_sample/basic/emes.ax",
-    "hsp_ax_sample/basic/filedialog.ax",
-    "hsp_ax_sample/basic/fonts.ax",
-    "hsp_ax_sample/basic/getpath.ax",
-    "hsp_ax_sample/basic/gradf.ax",
-    "hsp_ax_sample/basic/grect.ax",
-    "hsp_ax_sample/basic/groll.ax",
-    "hsp_ax_sample/basic/grotate.ax",
-    "hsp_ax_sample/basic/groupbox.ax",
-    "hsp_ax_sample/basic/gsel.ax",
-    "hsp_ax_sample/basic/gsquare.ax",
-    "hsp_ax_sample/basic/gstyle.ax",
-    "hsp_ax_sample/basic/hsv.ax",
-    "hsp_ax_sample/basic/htcopy1.ax",
-    "hsp_ax_sample/basic/htcopy2.ax",
-    "hsp_ax_sample/basic/line.ax",
-    "hsp_ax_sample/basic/memcpy.ax",
-    "hsp_ax_sample/basic/memfile.ax",
-    "hsp_ax_sample/basic/memnote.ax",
-    "hsp_ax_sample/basic/menusample.ax",
-    "hsp_ax_sample/basic/mesinfo.ax",
-    "hsp_ax_sample/basic/mouse.ax",
-    "hsp_ax_sample/basic/mouse2.ax",
-    "hsp_ax_sample/basic/note1.ax",
-    "hsp_ax_sample/basic/note2.ax",
-    "hsp_ax_sample/basic/noteadd.ax",
-    "hsp_ax_sample/basic/objimage.ax",
-    "hsp_ax_sample/basic/objmode.ax",
-    "hsp_ax_sample/basic/omedetai.ax",
-    "hsp_ax_sample/basic/onerror.ax",
-    "hsp_ax_sample/basic/onexit.ax",
-    "hsp_ax_sample/basic/onkey.ax",
-    "hsp_ax_sample/basic/picfont.ax",
-    "hsp_ax_sample/basic/picload.ax",
-    "hsp_ax_sample/basic/star.ax",
-    "hsp_ax_sample/basic/starmove.ax",
-    "hsp_ax_sample/basic/stars.ax",
-    "hsp_ax_sample/basic/stick.ax",
-    "hsp_ax_sample/basic/str.ax",
-    "hsp_ax_sample/basic/strf.ax",
-    "hsp_ax_sample/basic/strmid.ax",
-    "hsp_ax_sample/basic/switch.ax",
-    "hsp_ax_sample/basic/sysinfo.ax",
-};
-
 int main (void) {
     uint8_t* ax_raw_data;
     int32_t ax_size;
     HSPHED hsp_header;
     print_data_t print_data;
 
-    ax_raw_data = get_file_raw_data(sample_basic[3], &ax_size);
+    ax_raw_data = get_file_raw_data(sample_basic[2], &ax_size);
 
     puts("");
     print_hex_raw_data(ax_raw_data, ax_size);
@@ -1288,7 +1287,9 @@ int main (void) {
     int32_t code_index = hsp_header.pt_cs; // コード領域のオフセット
     for (loop_count = 0; loop_count < hsp_header.max_cs; loop_count += 4) {
         code_index = hsp_header.pt_cs; // コード領域のオフセット
-        printf("%04X",hsp_header.pt_cs - code_segment_offset);
+        printf("%d",(hsp_header.pt_cs - 112) / 2); // 16bitを１単位とするため
+        printf(" | ");
+        printf("%d",hsp_header.pt_cs - 112); // 8bit
         printf(" | ");
         print_code_segment(&print_data, ax_raw_data, &hsp_header, &code_index, &loop_count);
         printf("%d ", print_data.extra_flag_0);
@@ -1329,8 +1330,10 @@ int main (void) {
             ax_raw_data[hsp_header.pt_ot + i + 2],
             ax_raw_data[hsp_header.pt_ot + i + 3]
         );
-        printf("%X ", x);
-        // printf("%X %X %X %X ", ax_raw_data[hsp_header.pt_ot + i + 0],
+        printf("%d ", x * 2); //16bitを１単位とした値で格納されているので実際に使う時には2倍する
+
+        // printf("%X %X %X %X ", 
+        //     ax_raw_data[hsp_header.pt_ot + i + 0] ,
         //     ax_raw_data[hsp_header.pt_ot + i + 1],
         //     ax_raw_data[hsp_header.pt_ot + i + 2],
         //     ax_raw_data[hsp_header.pt_ot + i + 3]
