@@ -782,25 +782,21 @@ void print_code_segment_first(print_data_t* print_data, int16_t code_segment_fir
     } else {
         print_data->extra_flag_0 = false;
     }
-    //printf(" ");
     if (code_segment_first & EXFLG_1) {
         print_data->extra_flag_1 = true;
     } else {
         print_data->extra_flag_1 = false;
     }
-    //printf(" ");
     if (code_segment_first & EXFLG_2) {
         print_data->extra_flag_2 = true;
     } else {
         print_data->extra_flag_2 = false;
     }
-    //printf(" ");
     if (code_segment_first & EXFLG_3) {
         print_data->extra_flag_3 = true;
     } else {
         print_data->extra_flag_3 = false;
     }
-    //printf(" | ");
 }
 
 void if_type_mark32(print_data_t* print_data, int32_t code_segment_second) {
@@ -873,11 +869,9 @@ void if_type_mark16(print_data_t* print_data, int16_t code_segment_second) {
             set_array_from_str(print_data->result_str, "other");
     }
     print_data->is_result_str = true;
-    //printf(" | 演算子");
 }
 
 void if_type_mark(print_data_t* print_data, bool is_code_48bit, int16_t second16, int32_t second32) {
-    //printf(" 0 | 記号             | ");
     if (is_code_48bit) { // 48bitコードか
         if_type_mark32(print_data, second32);    
     } else {
@@ -939,26 +933,26 @@ void utf8_to_char(char* str, uint32_t utf8_code) {
     }
 }
 
-int search_sjis_index(uint32_t* table, uint32_t sjis_code) { //指定したSJISコードにマッチする位置を返す
+int search_sjis_index(uint32_t* sjis_table, uint32_t sjis_code) { //指定したSJISコードにマッチする位置を返す
     int table_len = sizeof(table_sjis) / sizeof(uint32_t);
     for (int i = 0; i < table_len; i++) {
-        if (sjis_code == table_sjis[i]) {
+        if (sjis_code == sjis_table[i]) {
             return i;
         }
     }
     return '?';
 }
 
-void print_utf8_from_sjis(print_data_t* print_data, uint32_t* table, uint32_t sjis_code, int* index) {
-    int offset = search_sjis_index(table, sjis_code);
+void print_utf8_from_sjis(print_data_t* print_data, uint32_t* sjis_table, uint32_t sjis_code, int* str_index) {
+    int offset = search_sjis_index(sjis_table, sjis_code);
     if (offset) {
         char str[4] = "";
         utf8_to_char(str, table_utf8[offset]);
         int i;
         for (i = 0; i < (int)strlen(str); i++) {
-            print_data->result_str[*index + i] = str[i];
+            print_data->result_str[*str_index + i] = str[i];
         }
-        *index += i;
+        *str_index += i;
     } else { // マッチしなかった場合は変換せずに格納する
         char str[4] = "";
         utf8_to_char(str, sjis_code);
@@ -974,29 +968,30 @@ uint32_t get_2byte_from_raw_data(uint8_t* data, int offset) {
 }
 
 void print_sjis_data(print_data_t* print_data, uint8_t* data, int32_t size) {
-    int index = 0;
+    int str_index = 0;
+    uint32_t* sjis_table = table_sjis;
     for(int offset = 0; offset < size; ) {
         if ((data[offset] < 0x80) ||
             (data[offset] >= 0xA1 && data[offset] <= 0xDF)) { // 1バイト目が0x81未満なら１バイト文字
             uint32_t sjis_code = 0;
             sjis_code += data[offset]; // ２バイト分流し込む
             offset += 1;
-            print_utf8_from_sjis(print_data, table_sjis, sjis_code, &index);
+            print_utf8_from_sjis(print_data, sjis_table, sjis_code, &str_index);
         } else { // 1バイト目が0x81以上なら２バイト文字
             uint32_t sjis_code = 0;
             sjis_code = get_2byte_from_raw_data(data, offset);
             offset += 2;
-            print_utf8_from_sjis(print_data, table_sjis, sjis_code, &index);
+            print_utf8_from_sjis(print_data, sjis_table, sjis_code, &str_index);
         }
     }
-    print_data->result_str[index] = '\0';
+    print_data->result_str[str_index] = '\0';
     print_data->is_result_str = true;
 }
 
-void if_type_string(print_data_t* print_data, bool is_code_48bit, uint8_t* data, int32_t* index, HSPHED* hsp_header) {
+void if_type_string(print_data_t* print_data, bool is_code_48bit, uint8_t* data, int32_t* code_index, HSPHED* hsp_header) {
     if (is_code_48bit) { // 48bitコードか
         uint32_t code;
-        int32_t i = *index - 4;
+        int32_t i = *code_index - 4;
         code = data[i + 3];
         code = code << 8;
         code += data[i + 2];
@@ -1016,7 +1011,7 @@ void if_type_string(print_data_t* print_data, bool is_code_48bit, uint8_t* data,
         free(str);
     } else {
         uint32_t code = 0;
-        int32_t i = *index - 2;
+        int32_t i = *code_index - 2;
         code = data[i + 1];
         code = code << 8;
         code += data[i + 0];
@@ -1033,10 +1028,10 @@ void if_type_string(print_data_t* print_data, bool is_code_48bit, uint8_t* data,
     }
 }
 
-void if_type_dnum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, int32_t* index) {
+void if_type_dnum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, int32_t* code_index) {
     if (is_code_48bit) { // 48bitコードか
         uint32_t code = 0;
-        int32_t i = *index - 4;
+        int32_t i = *code_index - 4;
         code = data[i + 3];
         code = code << 8;
         code += data[i + 2];
@@ -1046,7 +1041,7 @@ void if_type_dnum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, i
         code += data[i + 0];
     } else {
         uint16_t code = 0;
-        int32_t i = *index - 2;
+        int32_t i = *code_index - 2;
         code = data[i + 1];
         code = code << 8;
         code += data[i + 0];
@@ -1065,10 +1060,10 @@ void if_type_dnum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, i
     } 
 }
 
-void if_type_inum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, int32_t* index) {
+void if_type_inum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, int32_t* code_index) {
     if (is_code_48bit) { // 48bitコードか
         int32_t code = 0;
-        int32_t i = *index - 3;
+        int32_t i = *code_index - 3;
         code = data[i + 3];
         code = code << 8;
         code += data[i + 2];
@@ -1076,12 +1071,10 @@ void if_type_inum(print_data_t* print_data, bool is_code_48bit, uint8_t* data, i
         code += data[i + 1];
         code = code << 8;
         code += data[i + 0];
-        //printf("[%X %X %X %X %X]", data[i + 0],data[i + 1],data[i + 2],data[i + 3],data[i + 4]);
-        //printf("[%04X]",code);
         print_data->result_int = code;
     } else {
         uint16_t code = 0;
-        int32_t i = *index - 2;
+        int32_t i = *code_index - 2;
         code = data[i + 1];
         code = code << 8;
         code += data[i + 0];
@@ -1099,15 +1092,15 @@ void if_type_default(print_data_t* print_data, bool is_code_48bit, int16_t secon
     print_data->is_result_int = true;
 }
 
-void print_code_segment_second(print_data_t* print_data, int16_t code_segment_first, uint8_t* data, int32_t* index, HSPHED* hsp_header, int* loop_count) {
+void print_code_segment_second(print_data_t* print_data, int16_t code_segment_first, uint8_t* data, int32_t* code_index, HSPHED* hsp_header, int* loop_count) {
     int16_t code_segment_second16 = 0;
     int32_t code_segment_second32 = 0;
     bool is_code_48bit = code_segment_first & EXFLG_3;
 
     if (is_code_48bit) { // 48bitコードか
-        code_segment_second32 = hex_to_int24_index(data, index);
+        code_segment_second32 = hex_to_int24_index(data, code_index);
     } else {
-        code_segment_second16 = hex_to_int16_index(data, index);
+        code_segment_second16 = hex_to_int16_index(data, code_index);
     }
 
     int code_type = code_segment_first & CSTYPE;
@@ -1127,13 +1120,13 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
             if_type_var(print_data, is_code_48bit, code_segment_second16, code_segment_second32);
             break;
         case TYPE_STRING: // 文字列
-            if_type_string(print_data, is_code_48bit, data, index, hsp_header);
+            if_type_string(print_data, is_code_48bit, data, code_index, hsp_header);
             break;
         case TYPE_DNUM: // 実数値
-            if_type_dnum(print_data, is_code_48bit, data, index);
+            if_type_dnum(print_data, is_code_48bit, data, code_index);
             break;
         case TYPE_INUM: // 整数値
-            if_type_inum(print_data, is_code_48bit, data, index);
+            if_type_inum(print_data, is_code_48bit, data, code_index);
             if (is_code_48bit) {
                 hsp_header->pt_cs+=2;
                 *loop_count += 2;
@@ -1143,7 +1136,7 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
             print_data->is_result_int = true;
             print_data->result_int = code_segment_second16;
             print_data->is_result_int2 = true;
-            print_data->result_int2 = data[*index - 3];
+            print_data->result_int2 = data[*code_index - 3];
             break;
         case TYPE_XLABEL: // 未使用
             break;
@@ -1164,7 +1157,6 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
             set_array_from_str(print_data->result_str, type_extra_system_var[code_segment_second16]);
             hsp_header->pt_cs+=4;
             *loop_count += 4;
-            //*index+=4;
             break;
         case TYPE_CMPCMD: // 比較命令
             print_data->is_result_str = true;
@@ -1175,7 +1167,6 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
         case TYPE_MODCMD: // ユーザー命令関数
             print_data->is_result_int = true;
             print_data->result_int = code_segment_second16;
-            //hsp_header->pt_cs+=2;
             break;
         case TYPE_INTFUNC: // 内蔵関数
             print_data->is_result_str = true;
@@ -1205,15 +1196,13 @@ void print_code_segment_second(print_data_t* print_data, int16_t code_segment_fi
             if_type_default(print_data, is_code_48bit, code_segment_second16, code_segment_second32);
             hsp_header->pt_cs+=2;
             *loop_count += 2;
-            //*index+=4;
     }
 }
 
-void print_code_segment(print_data_t* print_data, uint8_t* data, HSPHED* hsp_header, int* loop_count) {
-    int index = hsp_header->pt_cs; // コード領域のオフセット
-    int16_t code_segment_first = hex_to_int16_index(data, &index);
+void print_code_segment(print_data_t* print_data, uint8_t* data, HSPHED* hsp_header, int* code_index, int* loop_count) {
+    int16_t code_segment_first = hex_to_int16_index(data, code_index);
     print_code_segment_first(print_data, code_segment_first);
-    print_code_segment_second(print_data, code_segment_first, data, &index, hsp_header, loop_count);
+    print_code_segment_second(print_data, code_segment_first, data, code_index, hsp_header, loop_count);
  }
 
 char* sample_basic[] = {
@@ -1280,7 +1269,7 @@ int main (void) {
     HSPHED hsp_header;
     print_data_t print_data;
 
-    ax_raw_data = get_file_raw_data(sample_basic[2], &ax_size);
+    ax_raw_data = get_file_raw_data(sample_basic[3], &ax_size);
 
     puts("");
     print_hex_raw_data(ax_raw_data, ax_size);
@@ -1296,10 +1285,12 @@ int main (void) {
     puts("");
     int loop_count;
     int code_segment_offset = hsp_header.pt_cs;
+    int32_t code_index = hsp_header.pt_cs; // コード領域のオフセット
     for (loop_count = 0; loop_count < hsp_header.max_cs; loop_count += 4) {
+        code_index = hsp_header.pt_cs; // コード領域のオフセット
         printf("%04X",hsp_header.pt_cs - code_segment_offset);
         printf(" | ");
-        print_code_segment(&print_data, ax_raw_data, &hsp_header, &loop_count);
+        print_code_segment(&print_data, ax_raw_data, &hsp_header, &code_index, &loop_count);
         printf("%d ", print_data.extra_flag_0);
         printf("%d ", print_data.extra_flag_1);
         printf("%d ", print_data.extra_flag_2);
