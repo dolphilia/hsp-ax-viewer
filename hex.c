@@ -1331,13 +1331,6 @@ int main (void) {
             ax_raw_data[hsp_header.pt_ot + i + 3]
         );
         printf("%d ", x * 2); //16bitを１単位とした値で格納されているので実際に使う時には2倍する
-
-        // printf("%X %X %X %X ", 
-        //     ax_raw_data[hsp_header.pt_ot + i + 0] ,
-        //     ax_raw_data[hsp_header.pt_ot + i + 1],
-        //     ax_raw_data[hsp_header.pt_ot + i + 2],
-        //     ax_raw_data[hsp_header.pt_ot + i + 3]
-        // );
     }
 
     println("\n");
